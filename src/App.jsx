@@ -8,7 +8,7 @@ function App() {
 
   async function callBackend() {
     try {
-      const response = await fetch("http://178.156.226.148:8000/");
+      const response = await fetch("https://depth-backend.sampacker.com/");
       const data = await response.json();
       console.log("Backend response:", data);
     } catch (error) {
