@@ -1,50 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  async function callBackend() {
+  // Handle file selection
+  function handleFileChange(e) {
+    const file = e.target.files[0];
+    setSelectedImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+
+  // Send image to backend
+  async function sendToBackend() {
+    if (!selectedImage) {
+      console.log("No image selected");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", selectedImage);
+
     try {
-      const response = await fetch("https://depth-backend.sampacker.com/");
+      setLoading(true);
+
+      const response = await fetch("https://depth-backend.sampacker.com/predict-depth", {
+        method: "POST",
+        body: formData,
+      });
+
       const data = await response.json();
       console.log("Backend response:", data);
+
+      setLoading(false);
     } catch (error) {
       console.error("Error calling backend:", error);
+      setLoading(false);
     }
   }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
+    <div className="app">
       <h1>Engineer AI Project</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
 
-        <button onClick={callBackend}>
-          Call Backend
-        </button>
+      {/* Image Upload */}
+      <input type="file" accept="image/*" onChange={handleFileChange} />
 
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      {/* Preview */}
+      {previewUrl && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>Selected Image:</h3>
+          <img src={previewUrl} alt="preview" style={{ width: "300px", borderRadius: "8px" }} />
+        </div>
+      )}
+
+      {/* Send to backend */}
+      <button onClick={sendToBackend} disabled={loading} style={{ marginTop: "20px" }}>
+        {loading ? "Processing..." : "Send to Backend"}
+      </button>
+    </div>
+  );
 }
 
-export default App
+export default App;
