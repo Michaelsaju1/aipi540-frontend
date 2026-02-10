@@ -90,6 +90,7 @@ function App() {
           onChange={(e) => setModel(e.target.value)}
         >
           <option value="deeplearning">Deep Learning (ViT)</option>
+          <option value="rf">Random Forest</option>
           <option value="naive">Naive Baseline</option>
         </select>
       </div>
